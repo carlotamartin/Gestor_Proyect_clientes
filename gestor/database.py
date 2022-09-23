@@ -1,3 +1,6 @@
+import config
+import csv
+
 class Cliente:
     def __init__(self, dni, nombre, apellido):
         self.dni = dni
@@ -10,6 +13,11 @@ class Cliente:
 class Clientes:
     #Lista de clientes
     lista = []
+    with open(config.DATABASE_PATH, newline='\n') as fichero:
+        reader = csv.reader(fichero, delimiter=';')
+        for dni, nombre, apellido in reader:
+            cliente = Cliente(dni, nombre, apellido)
+            lista.append(cliente)
 
     @staticmethod
     def buscar(dni):
@@ -40,3 +48,10 @@ class Clientes:
                 cliente = Clientes.lista.pop(indice)
                 Clientes.guardar()
                 return cliente
+
+    @staticmethod
+    def guardar():
+        with open(config.DATABASE_PATH, 'w', newline='\n') as fichero:
+            writer = csv.writer(fichero, delimiter=';')
+            for cliente in Clientes.lista:
+                writer.writerow((cliente.dni, cliente.nombre, cliente.apellido))
