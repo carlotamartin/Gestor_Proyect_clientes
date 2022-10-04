@@ -5,7 +5,6 @@ import helpers
 import unittest
 import database as db
 
-
 class TestDatabase(unittest.TestCase):
 
     def setUp(self):
@@ -42,10 +41,9 @@ class TestDatabase(unittest.TestCase):
 
     def test_dni_valido(self):
         self.assertTrue(helpers.dni_valido('00A', db.Clientes.lista))
-        self.assertFalse(helpers.dni_valido('23223S', db.Clientes.lista))
+        self.assertFalse(helpers.dni_valido('232323S', db.Clientes.lista))
         self.assertFalse(helpers.dni_valido('F35', db.Clientes.lista))
         self.assertFalse(helpers.dni_valido('48H', db.Clientes.lista))
-
 
     def test_escritura_csv(self):
         db.Clientes.borrar('48H')
@@ -60,6 +58,7 @@ class TestDatabase(unittest.TestCase):
         self.assertEqual(dni, '28Z')
         self.assertEqual(nombre, 'Mariana')
         self.assertEqual(apellido, 'García')
+
 
 if __name__ == '__main__':
     unittest.main()
