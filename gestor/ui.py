@@ -1,3 +1,4 @@
+from ast import Delete
 import helpers
 import database as db
 from tkinter import *
@@ -114,6 +115,8 @@ class EditClientWindow(Toplevel, CenterWidgetMixin):
 
         frame = Frame(self)
         frame.pack(pady=10)
+        treeview = ttk.Treeview(frame)
+        treeview['columns'] = ('DNI', 'Nombre', 'Apellido')
 
         actualizar = Button(frame, text="Actualizar", command=self.edit_client)
         actualizar.grid(row=0, column=0)
@@ -124,13 +127,7 @@ class EditClientWindow(Toplevel, CenterWidgetMixin):
         self.dni = dni
         self.nombre = nombre
         self.apellido = apellido
-
-    def edit_client(self):
-        cliente = self.master.treeview.focus()
-        self.master.treeview.item(cliente, values=(
-            self.dni.get(), self.nombre.get(), self.apellido.get()))
-        db.Clientes.modificar(self.dni.get(), self.nombre.get(), self.apellido.get())
-        self.close()
+        self.treeview = treeview
 
     def close(self):
         self.destroy()
@@ -144,33 +141,42 @@ class EditClientWindow(Toplevel, CenterWidgetMixin):
         self.validaciones[index] = valido
         self.actualizar.config(state=NORMAL if self.validaciones == [1, 1] else DISABLED)
 
+    def update_client(self):
+        cliente = self.master.treeview.focus()
+        # Sobreescribimos los datos de la fila seleccionada
+        self.master.treeview.item(cliente, values=(self.dni.get(), self.nombre.get(), self.apellido.get()))
+        db.Clientes.modificar(self.dni.get(), self.nombre.get(), self.apellido.get())
+        self.close()
 
 class MainWindow(Tk, CenterWidgetMixin):
     def __init__(self):
         super().__init__()
-        self.title("Gestor de clientes")
+        self.title("Gestor de clientes de Carlota")
         self.build()
         self.center()
 
     def build(self):
         frame = Frame(self)
         frame.pack()
-
-        treeview = ttk.Treeview(frame)
+        # Treeview
+        # Scrollbar
+        scrollbar = Scrollbar(frame) # new
+        scrollbar.pack(side=RIGHT, fill=Y) # new
+        treeview = ttk.Treeview(frame, yscrollcommand=scrollbar.set) # edited
         treeview['columns'] = ('DNI', 'Nombre', 'Apellido')
-
+        treeview.pack()
+            # Column format
         treeview.column("#0", width=0, stretch=NO)
         treeview.column("DNI", anchor=CENTER)
         treeview.column("Nombre", anchor=CENTER)
         treeview.column("Apellido", anchor=CENTER)
-
+            # Heading format
+        treeview.heading("#0", anchor=CENTER)
         treeview.heading("DNI", text="DNI", anchor=CENTER)
         treeview.heading("Nombre", text="Nombre", anchor=CENTER)
         treeview.heading("Apellido", text="Apellido", anchor=CENTER)
+        # Pack
 
-        scrollbar = Scrollbar(frame)
-        scrollbar.pack(side=RIGHT, fill=Y)
-        treeview['yscrollcommand'] = scrollbar.set
 
         for cliente in db.Clientes.lista:
             treeview.insert(
@@ -192,20 +198,17 @@ class MainWindow(Tk, CenterWidgetMixin):
         cliente = self.treeview.focus()
         if cliente:
             campos = self.treeview.item(cliente, "values")
-            confirmar = askokcancel(
-                title="Confirmar borrado",
-                message=f"¿Borrar {campos[1]} {campos[2]}?",
-                icon=WARNING)
+            confirmar = askokcancel(title="Confirmar borrado", message=f"¿Borrar {campos[1]} {campos[2]}?",icon=WARNING)
             if confirmar:
                 self.treeview.delete(cliente)
                 db.Clientes.borrar(campos[0])
 
-    def create(self):
+    def create_client_window(self):
         CreateClientWindow(self)
 
-    def edit(self):
-        if self.treeview.focus():
-            EditClientWindow(self)
+    def create_edit_window(self):
+        EditClientWindow(self)
+
 
 
 if __name__ == "__main__":
