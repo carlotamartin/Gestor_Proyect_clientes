@@ -13,7 +13,7 @@ class Cliente:
 class Clientes:
     #Lista de clientes
     lista = []
-    with open('C:\Users\Carlota Martin-Anero\OneDrive\Documentos\UAX\Gestor_Proyect_clientes\gestor\clientes.csv', newline='\n') as fichero:
+    with open(r'C:\Users\Carlota Martin-Anero\OneDrive\Documentos\UAX\Gestor_Proyect_clientes\gestor\clientes.csv', newline='\n') as fichero:
         reader = csv.reader(fichero, delimiter=';')
         for dni, nombre, apellido in reader:
             cliente = Cliente(dni, nombre, apellido)
@@ -51,7 +51,7 @@ class Clientes:
 
     @staticmethod
     def guardar():
-        with open('C:\Users\Carlota Martin-Anero\OneDrive\Documentos\UAX\Gestor_Proyect_clientes\gestor\clientes.csv', 'w', newline='\n') as fichero:
+        with open(r'C:\Users\Carlota Martin-Anero\OneDrive\Documentos\UAX\Gestor_Proyect_clientes\gestor\clientes.csv', 'w', newline='\n') as fichero:
             writer = csv.writer(fichero, delimiter=';')
             for cliente in Clientes.lista:
                 writer.writerow((cliente.dni, cliente.nombre, cliente.apellido))
